@@ -9,3 +9,6 @@ tensorboardX
 Pillow
 pandas
 wget
+soundfile
+jiwer
+ffmpeg

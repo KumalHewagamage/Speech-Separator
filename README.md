@@ -1,104 +1,45 @@
-# VoiceFilter
+# Speech Seperator
 
-## Note from Seung-won (2020.10.25)
+## Environment Setup
 
-Hi everyone! It's Seung-won from MINDs Lab, Inc.
-It's been a long time since I've released this open-source,
-and I didn't expect this repository to grab such a great amount of attention for a long time.
-I would like to thank everyone for giving such attention, and also Mr. Quan Wang (the first author of the VoiceFilter paper) for referring this project in his paper.
+Make sure you have [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/) installed.
 
-Actually, this project was done by me when it was only 3 months after I started studying deep learning & speech separation without a supervisor in the relevant field.
-Back then, I didn't know what is a power-law compression, and the correct way to validate/test the models.
-Now that I've spent more time on deep learning & speech since then (I also wrote a paper published at [Interspeech 2020](https://arxiv.org/abs/2005.03295) 😊),
-I can observe some obvious mistakes that I've made.
-Those issues were kindly raised by GitHub users; please refer to the
-[Issues](https://github.com/mindslab-ai/voicefilter/issues?q=is%3Aissue+) and [Pull Requests](https://github.com/mindslab-ai/voicefilter/pulls) for that.
-That being said, this repository can be quite unreliable,
-and I would like to remind everyone to use this code at their own risk (as specified in LICENSE).
+```bash
+# 1. Create a new conda environment with Python 3.13.3
+conda create -n vsep python=3.13.3
 
-Unfortunately, I can't afford extra time on revising this project or reviewing the Issues / Pull Requests.
-Instead, I would like to offer some pointers to newer, more reliable resources:
+# 2. Activate the environment
+conda activate vsep
 
-- [VoiceFilter-Lite](https://arxiv.org/abs/2009.04323):
-This is a newer version of VoiceFilter presented at Interspeech 2020, which is also written by Mr. Quan Wang (and his colleagues at Google).
-I highly recommend checking this paper, since it focused on a more realistic situation where VoiceFilter is needed.
-- [List of VoiceFilter implementation available on GitHub](https://paperswithcode.com/paper/voicefilter-targeted-voice-separation-by):
-In March 2019, this repository was the only available open-source implementation of VoiceFilter.
-However, much better implementations that deserve more attention became available across GitHub.
-Please check them, and choose the one that meets your demand.
-- [PyTorch Lightning](https://www.pytorchlightning.ai/):
-Back in 2019, I could not find a great deep-learning project template for myself,
-so I and my colleagues had used this project as a template for other new projects.
-For people who are searching for such project template, I would like to strongly recommend PyTorch Lightning.
-Even though I had done a lot of effort into developing my own template during 2019
-([VoiceFilter](https://github.com/mindslab-ai/voicefilter) -> [RandWireNN](https://github.com/seungwonpark/RandWireNN)
--> [MelNet](https://github.com/Deepest-Project/MelNet) -> [MelGAN](https://github.com/seungwonpark/melgan)),
-I found PyTorch Lightning much better than my own template.
+# 3. Install required packages from requirements.txt
+pip install -r requirements.txt
 
-Thanks for reading, and I wish everyone good health during the global pandemic situation.
-
-Best regards, Seung-won Park
-
----
-
-Unofficial PyTorch implementation of Google AI's:
-[VoiceFilter: Targeted Voice Separation by Speaker-Conditioned Spectrogram Masking](https://arxiv.org/abs/1810.04826).
-
-![](./assets/voicefilter.png)
-
-## Result
-
-- Training took about 20 hours on AWS p3.2xlarge(NVIDIA V100).
-
-### Audio Sample
-
-- Listen to audio sample at webpage: http://swpark.me/voicefilter/
-
-
-### Metric
-
-| Median SDR             | Paper | Ours |
-| ---------------------- | ----- | ---- |
-| before VoiceFilter     |  2.5  |  1.9 |
-| after VoiceFilter      | 12.6  | 10.2 |
-
-![](./assets/sdr-result.png)
-
-- SDR converged at 10, which is slightly lower than paper's.
-
-
-## Dependencies
-
-1. Python and packages
-
-    This code was tested on Python 3.6 with PyTorch 1.0.1.
-    Other packages can be installed by:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-1. Miscellaneous 
-
-    [ffmpeg-normalize](https://github.com/slhck/ffmpeg-normalize) is used for resampling and normalizing wav files.
-    See README.md of [ffmpeg-normalize](https://github.com/slhck/ffmpeg-normalize/blob/master/README.md) for installation.
+```
 
 ## Prepare Dataset
 
 1. Download LibriSpeech dataset
 
-    To replicate VoiceFilter paper, get LibriSpeech dataset at http://www.openslr.org/12/.
-    `train-clear-100.tar.gz`(6.3G) contains speech of 252 speakers, and `train-clear-360.tar.gz`(23G) contains 922 speakers.
-    You may use either, but the more speakers you have in dataset, the more better VoiceFilter will be.
+    Get LibriSpeech dataset at http://www.openslr.org/12/.
+    - For Training
+        - `train-clear-100.tar.gz`(6.3G) contains speech of 252 speakers, and `train-clear-360.tar.gz`(23G) contains 922 speakers. You may use either, but the more speakers you have in dataset, the more better VoiceFilter will be.
+    - For Testing
+        - `test-clean.tar.gz` is sufficient.
 
-1. Resample & Normalize wav files
+    Unzip `tar.gz` file to desired folder:
 
-    First, unzip `tar.gz` file to desired folder:
+    eg:
+
     ```bash
-    tar -xvzf train-clear-360.tar.gz
+    tar -xvzf test-clean.tar.gz
     ```
 
-    Next, copy `utils/normalize-resample.sh` to root directory of unzipped data folder. Then:
+## For Training
+
+(skip all this and go to `Evaluate` section if you only want to test.)
+1. Resample & Normalize wav files
+
+    Copy `utils/normalize-resample.sh` to root directory of unzipped data folder. Then:
     ```bash
     vim normalize-resample.sh # set "N" as your CPU core number.
     chmod a+x normalize-resample.sh
@@ -162,24 +103,15 @@ Unofficial PyTorch implementation of Google AI's:
 
 ## Evaluate
 
-```bash
-python inference.py -c [config yaml] -e [path of embedder pt file] --checkpoint_path [path of chkpt pt file] -m [path of mixed wav file] -r [path of reference wav file] -o [output directory]
-```
+For evaluvation download  pretrained weights and move them to `ckpt` folder. You need following:
+-   embedder.pt (speech encoder)
+-   seperator_best_checkpoint.pt (seperator weights)
+-   whisper-small (entire archive from hugging face. )
+    - run `git clone https://huggingface.co/openai/whisper-small` and move the folder to `ckpt` folder
 
-## Possible improvments
+Use pipeline_ver1.ipynb notebook for evaluvation.
 
-- Try power-law compressed reconstruction error as loss function, instead of MSE. (See [#14](https://github.com/mindslab-ai/voicefilter/issues/14))
-
-## Author
-
-[Seungwon Park](http://swpark.me) at MINDsLab (yyyyy@snu.ac.kr, swpark@mindslab.ai)
-
-## License
-
-Apache License 2.0
-
-This repository contains codes adapted/copied from the followings:
-- [utils/adabound.py](./utils/adabound.py) from https://github.com/Luolc/AdaBound (Apache License 2.0)
-- [utils/audio.py](./utils/audio.py) from https://github.com/keithito/tacotron (MIT License)
-- [utils/hparams.py](./utils/hparams.py) from https://github.com/HarryVolek/PyTorch_Speaker_Verification (No License specified)
-- [utils/normalize-resample.sh](./utils/normalize-resample.sh.) from https://unix.stackexchange.com/a/216475
+1. Run `Mixed Audio Generator` to create 2 speaker conversation dataset for testing.
+2. Run `Separator` to separate previously created mixed audio.
+3. Run `Eval-Dvec` to run trasncription setup with d-vec confidence filtering.
+4. Run `Visualizer` to inspect processed audio.
