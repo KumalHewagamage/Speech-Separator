@@ -1,9 +1,11 @@
 tqdm
 numpy
-torch==1.0.1
+torch
 pyyaml
 librosa
 mir_eval
 matplotlib
 tensorboardX
 Pillow
+pandas
+wget

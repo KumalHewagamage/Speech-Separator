@@ -7,6 +7,11 @@ config/*
 temp/
 chkpt/
 logs/
+LibriSpeech/
+pipeline_data/
+ckpt/
+out/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
