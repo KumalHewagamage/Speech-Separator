@@ -1,0 +1,26 @@
+metadata_path: "pipeline_data/mixed_audio/ver1/metadata.json"
+separated_dir: "pipeline_data/separated_audio/ver1"
+output_dir: "pipeline_data/separated_audio/ver1"
+output_filename: "test_dvec_vad.json"
+device: "cuda"  # auto-detects
+
+# audio_clean:
+#   trim_silence: true
+#   min_silence_ms: 2500
+#   silence_thresh_db: -35
+#   keep_extra_ms: 300
+#   normalize: true
+#   low_pass: true
+#   low_pass_hz: 4000
+audio_clean:
+  use_vad: true
+  vad_model_path: "ckpt/pyannote-segmentation"
+  normalize: true
+  low_pass: true
+  low_pass_hz: 4000
+
+
+stt:
+  model: "ckpt/whisper-small"
+  init_kwargs:
+    torch_dtype: "auto"

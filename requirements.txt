@@ -12,3 +12,4 @@ wget
 soundfile
 jiwer
 ffmpeg
+transformers

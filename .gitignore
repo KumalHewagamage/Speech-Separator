@@ -1,7 +1,5 @@
 .idea/
-# configuration yaml files
-config/*
-!config/default.yaml
+
 
 
 temp/
