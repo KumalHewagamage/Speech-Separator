@@ -13,3 +13,4 @@ soundfile
 jiwer
 ffmpeg
 transformers
+seaborn
